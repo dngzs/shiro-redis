@@ -111,7 +111,7 @@ public class RedisSessionDAO extends AbstractSessionDAO {
 			if (keys != null && keys.size() > 0) {
 				for (byte[] key:keys) {
 					byte[] bytes = redisManager.get(key);
-					if(bytes == null){
+					if (bytes == null) {
 						continue;
 					}
 					Session s = (Session) valueSerializer.deserialize(bytes);
