@@ -48,7 +48,7 @@ public class RedisSessionDAO extends AbstractSessionDAO {
 	private RedisSerializer keySerializer = new StringSerializer();
 	private RedisSerializer valueSerializer = new ObjectSerializer();
 	private static ThreadLocal sessionsInThread = new ThreadLocal();
-	
+
 	@Override
 	public void update(Session session) throws UnknownSessionException {
 		this.saveSession(session);
@@ -56,7 +56,7 @@ public class RedisSessionDAO extends AbstractSessionDAO {
 			this.setSessionToThreadLocal(session.getId(), session);
 		}
 	}
-	
+
 	/**
 	 * save session
 	 * @param session
@@ -110,7 +110,11 @@ public class RedisSessionDAO extends AbstractSessionDAO {
 			Set<byte[]> keys = redisManager.keys(this.keySerializer.serialize(this.keyPrefix + "*"));
 			if (keys != null && keys.size() > 0) {
 				for (byte[] key:keys) {
-					Session s = (Session) valueSerializer.deserialize(redisManager.get(key));
+					byte[] bytes = redisManager.get(key);
+					if(bytes == null){
+						continue;
+					}
+					Session s = (Session) valueSerializer.deserialize(bytes);
 					sessions.add(s);
 				}
 			}
@@ -126,7 +130,7 @@ public class RedisSessionDAO extends AbstractSessionDAO {
 			logger.error("session is null");
 			throw new UnknownSessionException("session is null");
 		}
-		Serializable sessionId = this.generateSessionId(session);  
+		Serializable sessionId = this.generateSessionId(session);
         this.assignSessionId(session, sessionId);
         this.saveSession(session);
 		return sessionId;
